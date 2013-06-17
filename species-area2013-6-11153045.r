@@ -9,7 +9,58 @@ dir()
 data0 <- read.csv("lgdat2013.csv")
 head(data0) 
 data0 <- subset(data0, sp!='00枯立木' & is.na(data0$bra))
+##############
+if(any(data0$x==0)){data0$x[data0$x==0] <- 0.01}
+if(any(data0$y==0)){data0$y[data0$y==0] <- 0.01}
+##
+q1 <- 500/((1:2000)/10)
+q2 <- 300/((1:2000)/10)
+side00 <- c((1:2000)/10)[q1%%1==0 & q2%%1==0]
+# [1]   0.1   0.2   0.4   0.5   0.8   1.0   2.0   2.5
+# [9]   4.0   5.0  10.0  12.5  20.0  25.0  50.0 100.0
+#
+x11()
+#
+side0=20
+#
+data1 <- data0
+data1 <- data1[data1$dbh>20,]
+sp1 <- data1$sp
+sx1 <- ceiling(data1$x/side0)
+sy1 <- ceiling(data1$y/side0)
+ag01 <- aggregate(sp1 ~ sx1 + sy1,FUN=function(xx){length(xx)})
+re01 <- reshape(ag01,v.names='sp1',idvar='sx1',timevar='sy1',direction='wide')
+image(x=1:dim(re01)[1], y=1:(dim(re01)[2]-1),
+      z=as.matrix(re01[, -1]), col = grey((10:0)/15),
+      xlab='', ylab='')
 
+#################
+
+#
+side0=20
+#
+data2 <- data0
+sp2 <- data2$sp
+sx2 <- ceiling(data2$x/side0)
+sy2 <- ceiling(data2$y/side0)
+ag02 <- aggregate(sp2~ sx2 + sy2,FUN=function(xx){length(unique(xx))})
+re02 <- reshape(ag02,v.names='sp2',idvar='sx2',timevar='sy2',direction='wide')
+#
+x11(5,4.5)
+image(x=1:dim(re02)[1], y=1:(dim(re02)[2]-1),
+      z=as.matrix(re02[, -1]), col = grey((25:0)/25),
+      xlab='', ylab='')
+
+#
+x11(5,4.5)
+image(x=1:dim(re02)[1], y=1:(dim(re02)[2]-1),
+      z=as.matrix(re02[, -1]), col = grey((0:25)/25),
+      xlab='', ylab='')
+
+#
+#
+#
+#################
   
 SampleRanSqu <- function(data0=data0, side.x=seq(0, 500, by=50),
                          n.rep=3, plotdim=c(500, 300)){
@@ -89,6 +140,22 @@ hist(rich01, breaks = 40, xlab = '',  # '物种数 Number of species',
 par(op1) 
 
 dev.off()
+
+################################
+
+summary(resu.all)
+x00 <- resu.all$x
+
+rich01 <- sp.rich00[area00>=3 & area00<=4]
+x01 <- x00[area00>=3 & area00<=4]
+area01 <- area00[area00>=3 & area00<=4]
+
+t01 <- tapply(rich01,area01,mean)
+n01 <- names(t01)
+  w01 <-lapply(n01,function(xx){which(area01==xx & x01>=t01[xx])})
+ hist(x01[unlist(w01)])
+ hist(x01[-unlist(w01)])
+
 
 
 ################################# 
