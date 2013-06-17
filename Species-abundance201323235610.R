@@ -1,5 +1,7 @@
 ###############################################################
-setwd("F:/lg-data/composition")
+#  species abundance rich area    2013-6-12 15:51:31          #
+###############################################################
+setwd("F:/DataW/lg-data/composition")
 dir()
 dat <- read.csv('lgdat2013.csv')
 head(dat)
@@ -142,13 +144,14 @@ write.csv(iv.spe, "IV.RESUL201323224033.csv")
 #
 # Species-Area curve
 #
-setwd("F:/lg-data/composition")
+setwd("F:/DataW/lg-data/composition")
 
 dir()
   ## 随机取样 ~~~~~
   data <- read.csv("lgdat2013.csv")
 head(data) 
 data <- subset(data, sp!='00枯立木' & is.na(data$bra))
+ 
 ##   Single sampling ~~~~
 SampleRanSqu <- function(data=data, side.x=seq(1, 500, by=5)
                          , n.rep=20, plotdim=c(500, 300)){
@@ -181,8 +184,6 @@ SampleRanSqu <- function(data=data, side.x=seq(1, 500, by=5)
   detach(data)   
   return(list(area=side.x^2/5*3/1e4, x=t(xlo), y=t(ylo), spp=no.spp, sp2=no.sp2) )
                                                            }
-#resu.00 <- resu.all
-
 
 resu.all <- SampleRanSqu(data=data, side.x=seq(1, 500, by=2), n.rep=100)
 str(resu.all)
@@ -194,21 +195,16 @@ ggxy <- as.data.frame(cbind(area, no.spp[1]))
 length(ggxy$area)
 x11(3.15, 3)
 op0 <- par(mex=0.45,mar=c(5.1,5.0,1,1))
-plot(ggxy$area[1:18000]
-     , ggxy$values[1:18000]
+plot(ggxy$area
+     , ggxy$values
      , pch='*'
      , cex=0.25
-     , col=gray(6/8)
+     , col=1#gray(1/8, alpha=0.6)
      , xlab=expression('面积 Area(' * hm^2 * ')')
      , ylab="物种数 Number of species"
      , cex.lab=0.7
      , cex.axis=0.7
      )
-points(ggxy$area[18000:25000], ggxy$values[18000:25000]
-     , pch='*'
-     , cex=0.25
-     , col= 1
-)
 grid()
 #
 height <- 24
@@ -271,28 +267,14 @@ hist(la0[,1], breaks = 40, xlab = '',  # "个体数 Number of individuals",
      cex.lab = 0.63,
      cex.axis = 0.6
 ) 
-par(op1) 
-
-# 
-# ###################################################
-# 
-# head(ggxy)
-# require(ggplot2)
-# x11(3,3)
-# par(mex=0.3,mar=c(6,6,1,1))
-# d <- ggplot(ggxy, aes(area, values))
-# d + geom_point(alpha = 0.2/10)+ xlab(expression('面积 Area(' * hm^2 * ')')) +
-#   ylab("物种数 Number of species")
-# 
+par(op1)  
 ###############################################################################
 #  Distribution patterns ~~~~~~~~~~~~
 #
-setwd("F:/lg-data/composition")
-data <- read.csv("lgdat2013.csv")
-head(data) 
-da0 <- subset(data, !is.na(bra))
-unique(da0$sp)
 
+setwd("F:/DataW/lg-data/composition")
+data <- read.csv("lgdat2013.csv")
+head(data)  
  da0 <- subset(data, sp!= '00枯立木'& is.na(bra))
  
 da0$dbh[da0$dbh<1] <- 1
@@ -304,31 +286,31 @@ x11(3.2, 2.6)
 op0 <- par(mex=0.5,mar=c(3,3,1,1))
 
 with(subset(da0,dbh>=10 & dbh<20), 
-     plot(x, y
-          , ylim=c(0,300), xlim=c(0,500)
-          ,ylab='',xlab=''
-          , cex.axis=0.7
-          ,col=grey(0/10)
-          ,lwd=1
-          , pch=3, cex=0.25)
-)  
+     plot(x, y, 
+          ylim=c(0,300), xlim=c(0,500),
+          ylab='',xlab='', 
+          cex.axis=0.7,
+          col=grey(0/20, alpha=0.6),
+          lwd=1,
+          pch=3, cex=0.6)
+    )  
 #
-
 x11(3.2, 2.6)
 op0 <- par(mex=0.5,mar=c(3,3,1,1))
 
 with(subset(da0,dbh>=20 & dbh<30), 
-     plot(x, y
-          , ylim=c(0,300), xlim=c(0,500)
-          ,ylab='',xlab=''
-          , cex.axis=0.7
-          ,col=grey(4/10)
-          ,lwd=1
-          , pch=1, cex=0.5)
-    ) 
+     plot(x, y,
+           ylim=c(0,300), xlim=c(0,500),
+           ylab='',xlab='',
+           cex.axis=0.7,
+           col=grey(0/10, alpha=0.6),
+           lwd=1, pch=1, cex=0.6
+          )
+      ) 
 with(subset(da0,dbh>=30), 
-     points(x,y,ylim=c(0,300),xlim=c(0,500),pch=2,lwd=1,cex=0.45,col=1)
+     points(x,y,ylim=c(0,300),xlim=c(0,500),pch=2,lwd=1,cex=0.7,col=grey(0/10, alpha=0.6))
      ) 
+
 # 
 ########################## 
 #####################################################################
@@ -346,7 +328,6 @@ axis(1, seq(0,max(da0$dbh), by =round(max(da0$dbh)/10)), cex.axis=0.6)
 axis(2, seq(0,25000, by =2500), cex.axis=0.6)
  
 xy00 <- locator(1,type="n")
-#text(xy00,labels = '所有个体 \n all individuals',cex=0.8)
 text(xy00,labels = '所有分枝和萌枝 \n all ramifications and sprouts',cex=0.8)
 box()
 grid() 

@@ -1,5 +1,5 @@
 #########################################
-setwd("F:/lg-data/composition")
+setwd("F:/DataW/lg-data/composition")
 dir()
 h00 <- read.csv("hysIV2013.csv")
 head(h00)
@@ -12,15 +12,15 @@ hys00 <- read.csv('distru.ke.shu.hys2013-2-19 170601.csv')
 lgd00 <- read.csv('lgdat2013.csv')
 lgd00 <- subset(lgd00,sp!='00枯立木' & is.na(bra))
 head(lgd00)
-
+#######################################
+#  lgd01 <- subset(lgd00,dbh>=10)
+#  length(unique(lgd01$sp))
+####################################
 s00 <- sort(table(lgd00$sp), decreasing=T)
 10/223
 sum(s00[1:11])/sum(s00)
 57/223
-sum(s00[1:57])/sum(s00)
-
-
-
+sum(s00[1:57])/sum(s00) 
 #
 jzct <- subset(lgd00,sp=='劲直刺桐' & is.na(bra))
 head(jzct)

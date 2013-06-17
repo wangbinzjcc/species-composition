@@ -1,6 +1,8 @@
-# Image and Scatter plot
+###########################################################
+# Nonggang map, Species scatter plot, Branch plot, Image
+###########################################################
 #..................
-setwd("F:/lg-data/composition")
+setwd("F:/DataW/lg-data/composition")
 dir()
 
 
@@ -36,34 +38,33 @@ dat00 <- dat00[is.na(dat00$bra),]
 hys00 <- read.csv('hysIV2013.csv')
 nam00 <- as.character(hys00$Species)
 # ................................................
-
-PointCont <- function(col=T){
-  col00 <- list(c(3, 4, 2), grey(c(5,3,0)/10))[[ifelse(col==T, 1, 2)]]
-  for(i in 1:3){
+#
+PointCont <- function(){
+    for(i in 1:3){
     dat02 <- dat01[dat.dbh==i,]
     points(dat02$x, dat02$y, 
-           pch=list(8, 3, 1)[[i]], cex=c(0.3, 0.8, 1.2)[i] 
-           ,  col=col00[i] )   
-               }            } 
+          pch=list(8, 3, 1)[[i]], cex=c(0.4, 0.7, 1.2)[i], 
+          col= grey(c(3/10,1.5/10,0/10), alpha=c(0.3,0.7,1))[i]
+           )    }       } 
 #
 #````````````````````````````````````````````````````` 
 
-    for(i in 1:30){ 
+   for(i in 1:30){ 
      dat01 <- dat00[dat00$sp==nam00[i],]
      dat.dbh <- cut(dat01$dbh,c(-Inf,5,20,Inf ))
      levels(dat.dbh) <- 1:3
-     bb00 <- substitute(paste(x,'  ',italic(y))
-                        , list(x=as.character(nam00[i])
-                        , y=as.character(hys00$sp.ld[i]))
+     bb00 <- substitute(paste(x,'  ',italic(y)), 
+                        list(x=as.character(nam00[i]), 
+                        y=as.character(hys00$sp.ld[i]))
                         )
-     tiff(paste(nam00[i],'.tiff'),width = 320, height = 260, pointsize = 10)
-     
-     par(mex=0.6,mar=c(3,3,3,1))
-     contour(xx, yy,zz, levels = seq(round(z.min), z.max, by = 15),
-            add = F, col = "peru",lwd=1,labcex=0.1)
-     PointCont(col=F) 
-    mtext(bb00, side=3, line = .5,  at = 260, cex = 1.2 ,font =2 )
-     
+      tiff(paste(nam00[i],'.tiff'), width = 2100, height = 1600,res=600,compression = "lzw")
+    # x11(5,4)
+     par(mex=0.45,mar=c(3,3,3,0.5))
+     contour(xx, yy,zz, levels = seq(round(z.min), z.max, by = 20),
+             add = F, col = "peru",lwd=1,labcex=0.1, cex.axis=0.9, yaxt="n")
+     axis(side=2,at=seq(0,300,100), cex.axis=0.9)
+     PointCont() 
+     mtext(bb00, side=3, line = .5,  at = 260, cex = 1.0 ,font =2 ) 
      dev.off()
               }
 
