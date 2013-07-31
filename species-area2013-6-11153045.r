@@ -13,6 +13,7 @@ data0 <- subset(data0, sp!='00枯立木' & is.na(data0$bra))
 if(any(data0$x==0)){data0$x[data0$x==0] <- 0.01}
 if(any(data0$y==0)){data0$y[data0$y==0] <- 0.01}
 ##
+#
 q1 <- 500/((1:2000)/10)
 q2 <- 300/((1:2000)/10)
 side00 <- c((1:2000)/10)[q1%%1==0 & q2%%1==0]
@@ -62,39 +63,82 @@ image(x=1:dim(re02)[1], y=1:(dim(re02)[2]-1),
 #
 #################
   
-SampleRanSqu <- function(data0=data0, side.x=seq(0, 500, by=50),
-                         n.rep=3, plotdim=c(500, 300)){
+SampleRanSqu <- function(data0=data0, side.x=seq(0, 500, by=10),
+                         n.rep=10, plotdim=c(500, 300)){
   digits0 <- '%1.f'
   dat0x <- sprintf(digits0, data0$x)
   dat0y <- sprintf(digits0, data0$y)
-  
+
   sid0.x <- rep(side.x, times=n.rep)
   sid0.y <- rep(side.x/5*3, times=n.rep)
  
-  start.x <- sapply(plotdim[1] - sid0.x,
-              function(i)runif(n=1, min=0, max=i)
+  start.x <- sapply(sid0.x,
+           function(i)runif(n=1, min=0, max=plotdim[1]-i)
                     )  
-  start.y <- sapply(plotdim[2] - sid0.y,
-              function(i)runif(n=1, min=0, max=i)
+  start.y <- sapply(sid0.y,
+           function(i)runif(n=1, min=0, max=plotdim[2]-i)
                    ) 
-  logi.xy <- lapply(1 : length(sid0.x), function(i){ 
-                 seq.x0 <- seq(start.x[i], start.x[i]+sid0.x[i], by=1)
-                 seq.y0 <- seq(start.y[i], start.y[i]+sid0.y[i], by=1)
-                logi.x0 <- !is.na(match(dat0x, sprintf(digits0, seq.x0))) 
-                logi.y0 <- !is.na(match(dat0y, sprintf(digits0, seq.y0)))
-                logi.x0 & logi.y0                }) 
+  
+  logi0.xy <- lapply(1 : length(sid0.x), function(i){ 
+                 seq.x0  <- seq(start.x[i], start.x[i]+sid0.x[i], by=1)
+                 seq.y0  <- seq(start.y[i], start.y[i]+sid0.y[i], by=1)
+                 logi.x0 <- !is.na(match(dat0x, sprintf(digits0, seq.x0))) 
+                 logi.y0 <- !is.na(match(dat0y, sprintf(digits0, seq.y0)))
+                 logi.x0 & logi.y0                  }
+                     ) 
   
   sp.rich <- sapply(1:length(sid0.x), function(i){
-                  length(unique(data0$sp[logi.xy[[i]]])) 
+                  length(unique(data0$sp[logi0.xy[[i]]])) 
                                                  })
   sp.indi <- sapply(1:length(sid0.x), function(i){
-                  length(data0$sp[logi.xy[[i]]]) 
+                  length(data0$sp[logi0.xy[[i]]]) 
                                                  })
   return(list(area=(sid0.x/100)*(sid0.y/100), x=start.x, y=start.y, sp.rich=sp.rich,
               sp.indi=sp.indi) )
 }
 
-resu.all <- SampleRanSqu(data0=data0, side.x=seq(1, 500, by=2), n.rep=100, plotdim=c(500, 300))
+
+
+
+######################33##############################################
+
+
+SampleRanSqu0 <- function(data0=data0, side.x=seq(0, 500, by=10),
+                         n.rep=10, plotdim=c(500, 300)){
+  
+  sid0.x <- rep(side.x, times=n.rep)
+  sid0.y <- rep(side.x/5*3, times=n.rep)
+ 
+  start.x <- sapply(sid0.x, function(i)runif(n=1, min=0, max=plotdim[1]-i))  
+  start.y <- sapply(sid0.y, function(i)runif(n=1, min=0, max=plotdim[2]-i)) 
+ 
+  logi0.xy <- lapply(1 : length(start.x), function(i){ 
+          data0$x >= start.x[i] & data0$x <= start.x[i]+sid0.x[i] &
+          data0$y >= start.y[i] & data0$y <= start.y[i]+sid0.y[i]
+                                                    }
+                    )  
+  
+  sp.rich <- sapply(1:length(start.x), function(i){
+        length(unique(data0$sp[logi0.xy[[i]]]))   }
+                    )
+  
+  sp.abun <- sapply(1:length(start.x), function(i){
+        length(data0$sp[logi0.xy[[i]]])           }
+                    )
+  
+  return(list(area=(sid0.x/100)*(sid0.y/100), x=start.x, y=start.y, sp.rich=sp.rich,
+              sp.abun=sp.abun) )
+                                                      }
+ 
+#####################################
+
+system.time(
+  resu.all <- SampleRanSqu(data0=data0, side.x=seq(1, 500, by=5), n.rep=50, plotdim=c(500, 300))
+)
+  system.time(
+resu.all0 <- SampleRanSqu0(data0=data0, side.x=seq(1, 500, by=5), n.rep=50, plotdim=c(500, 300))
+)
+
 ###################################################################
 ## dput(resu.all,'species-area-result.all.2013-6-12 121424')
 ## resu.all  <- dget('species-area-result.all.2013-6-12 121424')
@@ -162,13 +206,13 @@ n01 <- names(t01)
 
 ##################################
 area00 <- resu.all$area 
-sp.indi00 <- resu.all$sp.indi
+sp.abun00 <- resu.all$sp.abun
  
 ############
 tiff('AreaSpeciesIndividual.tiff',
      width = 3000, height = 2800,res=600,compression = "lzw")
 op0 <- par(mex=0.45,mar=c(5.1,5.0,2.3,1))
-plot(area00, sp.indi00
+plot(area00, sp.abun00
      , pch='*'
      , cex=0.8
      , col=gray(1/80
@@ -179,7 +223,7 @@ plot(area00, sp.indi00
      , cex.lab=1
      , cex.axis=1
 )
-abline(lm(sp.indi00 ~ area00), col=gray(5/8), lwd=2)
+abline(lm(sp.abun00 ~ area00), col=gray(5/8), lwd=2)
 grid()
 #
 height <- 3800
@@ -192,8 +236,8 @@ arrows( 3.65,21000, 4.6,35000,angle=30,code=2,length=0.10)
 par(op0)
 #
 op1 <- par( fig=c(.13 , .57, .56 , .95) , new=TRUE, mex=0.3, mar=c(5,6,1,1))
-sp.indi01 <- sp.indi00[area00>=3 & area00<=4]
-hist(sp.indi01, breaks = 40, xlab = '',  # "个体数 Number of individuals", 
+sp.abun01 <- sp.abun00[area00>=3 & area00<=4]
+hist(sp.abun01, breaks = 40, xlab = '',  # "个体数 Number of individuals", 
      ylab = '频数 Frequency' , main = '',
      cex.lab = 0.73,
      cex.axis = 0.7
