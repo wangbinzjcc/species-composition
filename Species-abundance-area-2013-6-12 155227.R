@@ -47,7 +47,7 @@ plot(log(tab00)
      , cex.lab=0.7
      , cex.axis=0.6
      ,ylab="多度(取对数) \n ln(abundance)"
-     ,xlab="物种优势度 Species rank of abundance"
+     ,xlab="物种多度序列 Species rank in abundance"
 )
 DoPoint(xm01=t.1, den00=log(tab00), TEXT=1)
 DoPoint(xm01=t.10, den00=log(tab00), TEXT=1)
@@ -77,7 +77,7 @@ plot(tab01
      , cex.lab=0.7
      , cex.axis=0.6
      ,ylab="累计百分比多度 \n Cumulative percentage of abundance(%)"
-     ,xlab="物种优势度 Species rank of abundance"
+     ,xlab="物种多度序列 Species rank in abundance"
      )
 #grid()
 DoPoint(xm01=t5, den00=tab01, TEXT=2)

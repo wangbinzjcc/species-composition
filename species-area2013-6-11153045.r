@@ -1,6 +1,6 @@
 #########################
 #  Species-area  2013-6-11 15:32:37
-#########################
+#######################################################################
 
 setwd("F:/DataW/lg-data/composition")
 
@@ -13,7 +13,7 @@ data0 <- subset(data0, sp!='00枯立木' & is.na(data0$bra))
 if(any(data0$x==0)){data0$x[data0$x==0] <- 0.01}
 if(any(data0$y==0)){data0$y[data0$y==0] <- 0.01}
 ##
-#
+########################################################################
 q1 <- 500/((1:2000)/10)
 q2 <- 300/((1:2000)/10)
 side00 <- c((1:2000)/10)[q1%%1==0 & q2%%1==0]
@@ -24,6 +24,9 @@ x11()
 #
 side0=20
 #
+# make a matrix of species abundances in grids of x and y
+
+
 data1 <- data0
 data1 <- data1[data1$dbh>20,]
 sp1 <- data1$sp
@@ -60,83 +63,43 @@ image(x=1:dim(re02)[1], y=1:(dim(re02)[2]-1),
 
 #
 #
-#
-#################
-  
-SampleRanSqu <- function(data0=data0, side.x=seq(0, 500, by=10),
-                         n.rep=10, plotdim=c(500, 300)){
-  digits0 <- '%1.f'
-  dat0x <- sprintf(digits0, data0$x)
-  dat0y <- sprintf(digits0, data0$y)
-
-  sid0.x <- rep(side.x, times=n.rep)
-  sid0.y <- rep(side.x/5*3, times=n.rep)
  
-  start.x <- sapply(sid0.x,
-           function(i)runif(n=1, min=0, max=plotdim[1]-i)
-                    )  
-  start.y <- sapply(sid0.y,
-           function(i)runif(n=1, min=0, max=plotdim[2]-i)
-                   ) 
+############################################################################
+
+
+SampleRanSqu0 <- function(data0=data0, area.length = 100,
+                          n.rep=10, plotdim=c(500, 300)){
   
-  logi0.xy <- lapply(1 : length(sid0.x), function(i){ 
-                 seq.x0  <- seq(start.x[i], start.x[i]+sid0.x[i], by=1)
-                 seq.y0  <- seq(start.y[i], start.y[i]+sid0.y[i], by=1)
-                 logi.x0 <- !is.na(match(dat0x, sprintf(digits0, seq.x0))) 
-                 logi.y0 <- !is.na(match(dat0y, sprintf(digits0, seq.y0)))
-                 logi.x0 & logi.y0                  }
-                     ) 
-  
-  sp.rich <- sapply(1:length(sid0.x), function(i){
-                  length(unique(data0$sp[logi0.xy[[i]]])) 
-                                                 })
-  sp.indi <- sapply(1:length(sid0.x), function(i){
-                  length(data0$sp[logi0.xy[[i]]]) 
-                                                 })
-  return(list(area=(sid0.x/100)*(sid0.y/100), x=start.x, y=start.y, sp.rich=sp.rich,
-              sp.indi=sp.indi) )
-}
-
-
-
-
-######################33##############################################
-
-
-SampleRanSqu0 <- function(data0=data0, side.x=seq(0, 500, by=10),
-                         n.rep=10, plotdim=c(500, 300)){
-  
-  sid0.x <- rep(side.x, times=n.rep)
-  sid0.y <- rep(side.x/5*3, times=n.rep)
+  Areas.00  <- seq(0, 15e4, length.out=area.length)
+  area.xs <- sqrt(Areas.00*5/3) 
+  area.xs_rep <- rep(area.xs, times=n.rep)
+  area.ys_rep <- rep(area.xs/5*3, times=n.rep)
  
-  start.x <- sapply(sid0.x, function(i)runif(n=1, min=0, max=plotdim[1]-i))  
-  start.y <- sapply(sid0.y, function(i)runif(n=1, min=0, max=plotdim[2]-i)) 
+  start.xs <- sapply(area.xs_rep, function(i)runif(n=1, min=0, max=plotdim[1]-i))  
+  start.ys <- sapply(area.ys_rep, function(i)runif(n=1, min=0, max=plotdim[2]-i)) 
  
-  logi0.xy <- lapply(1 : length(start.x), function(i){ 
-          data0$x >= start.x[i] & data0$x <= start.x[i]+sid0.x[i] &
-          data0$y >= start.y[i] & data0$y <= start.y[i]+sid0.y[i]
+  logi0.xy <- lapply(1 : length(start.xs), function(i){ 
+          data0$x >= start.xs[i] & data0$x <= start.xs[i]+area.xs_rep[i] &
+          data0$y >= start.ys[i] & data0$y <= start.ys[i]+area.ys_rep[i]
                                                     }
                     )  
   
-  sp.rich <- sapply(1:length(start.x), function(i){
+  sp.rich <- sapply(1:length(start.xs), function(i){
         length(unique(data0$sp[logi0.xy[[i]]]))   }
                     )
   
-  sp.abun <- sapply(1:length(start.x), function(i){
+  sp.abun <- sapply(1:length(start.xs), function(i){
         length(data0$sp[logi0.xy[[i]]])           }
                     )
   
-  return(list(area=(sid0.x/100)*(sid0.y/100), x=start.x, y=start.y, sp.rich=sp.rich,
+  return(list(area=Areas.00, x=start.xs, y=start.ys, sp.rich=sp.rich,
               sp.abun=sp.abun) )
                                                       }
  
 #####################################
-
-system.time(
-  resu.all <- SampleRanSqu(data0=data0, side.x=seq(1, 500, by=5), n.rep=50, plotdim=c(500, 300))
-)
+ 
   system.time(
-resu.all0 <- SampleRanSqu0(data0=data0, side.x=seq(1, 500, by=5), n.rep=50, plotdim=c(500, 300))
+resu.all0 <- SampleRanSqu0(data0=data0, area.length = 500, n.rep=50, plotdim=c(500, 300))
 )
 
 ###################################################################
@@ -247,7 +210,36 @@ dev.off()
 
 
 ##################################################
+# get the rare ratios with different plot areas
+#
 
 
 
+SampleRanSqu0 <- function(data0=data0, Ar.00=c(1,2,5,8,10,12,15),
+                          n.rep=10, plotdim=c(500, 300)){
+
+  side.x <- sqrt(Ar.00*5/3)
+  sid0.x <- rep(side.x, times=n.rep)
+  sid0.y <- rep(side.x/5*3, times=n.rep)
+  
+  start.x <- sapply(sid0.x, function(i)runif(n=1, min=0, max=plotdim[1]-i))  
+  start.y <- sapply(sid0.y, function(i)runif(n=1, min=0, max=plotdim[2]-i)) 
+  
+  logi0.xy <- lapply(1 : length(start.x), function(i){ 
+    data0$x >= start.x[i] & data0$x <= start.x[i]+sid0.x[i] &
+      data0$y >= start.y[i] & data0$y <= start.y[i]+sid0.y[i]
+  }
+  )  
+  
+  sp.rich <- sapply(1:length(start.x), function(i){
+    length(unique(data0$sp[logi0.xy[[i]]]))   }
+  )
+  
+  sp.abun <- sapply(1:length(start.x), function(i){
+    length(data0$sp[logi0.xy[[i]]])           }
+  )
+  
+  return(list(area=(sid0.x/100)*(sid0.y/100), x=start.x, y=start.y, sp.rich=sp.rich,
+              sp.abun=sp.abun) )
+}
 
