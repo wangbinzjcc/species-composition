@@ -70,11 +70,11 @@ image(x=1:dim(re02)[1], y=1:(dim(re02)[2]-1),
 SampleRanSqu0 <- function(data0=data0, area.length = 100,
                           n.rep=10, plotdim=c(500, 300)){
   
-  Areas.00  <- seq(0, 15e4, length.out=area.length)
-  area.xs <- sqrt(Areas.00*5/3) 
-  area.xs_rep <- rep(area.xs, times=n.rep)
-  area.ys_rep <- rep(area.xs/5*3, times=n.rep)
- 
+  Areas.00  <- seq(100, 15e4, length.out=area.length)
+  areas.00_rep <- rep(Areas.00, times=n.rep)
+  area.xs_rep <- sqrt(areas.00_rep * 5 / 3) 
+  area.ys_rep <- area.xs_rep * 3 / 5
+
   start.xs <- sapply(area.xs_rep, function(i)runif(n=1, min=0, max=plotdim[1]-i))  
   start.ys <- sapply(area.ys_rep, function(i)runif(n=1, min=0, max=plotdim[2]-i)) 
  
@@ -92,39 +92,42 @@ SampleRanSqu0 <- function(data0=data0, area.length = 100,
         length(data0$sp[logi0.xy[[i]]])           }
                     )
   
-  return(list(area=Areas.00, x=start.xs, y=start.ys, sp.rich=sp.rich,
+  return(list(area=areas.00_rep, x=start.xs, y=start.ys, sp.rich=sp.rich,
               sp.abun=sp.abun) )
                                                       }
  
 #####################################
  
   system.time(
-resu.all0 <- SampleRanSqu0(data0=data0, area.length = 500, n.rep=50, plotdim=c(500, 300))
+resu.all <- SampleRanSqu0(data0=data0, area.length = 500, n.rep=50, plotdim=c(500, 300))
 )
 
 ###################################################################
-## dput(resu.all,'species-area-result.all.2013-6-12 121424')
-## resu.all  <- dget('species-area-result.all.2013-6-12 121424')
+## dput(resu.all,'species-area-result.all.2013-8-22 154024')
+## resu.all  <- dget('species-area-result.all.2013-8-22 154024')
 ###########################################################################
-area00 <- resu.all$area 
+area00 <- resu.all$area / 1e4
 sp.rich00 <- resu.all$sp.rich 
-
-tiff('AreaSpeciesRich0.tiff',
-     width = 3000, height = 2800,res=600,compression = "lzw")
+ 
+tiff('AreaSpeciesRich01.tiff',
+     family="Times",
+     pointsize=8,
+     width=80, height=80, units="mm",
+     res=600, compression="lzw")
 op0 <- par(mex=0.45,mar=c(5.1,5.0,2.3,1))
 plot(area00 
      , sp.rich00
      , pch='*'
-     , cex=1
+     , cex=0.8
      , col=gray(1/80
-     , alpha=0.05
+     , alpha=0.1
                 )
      , xlab=expression('面积 Area(' * hm^2 * ')')
      , ylab="物种数 Number of species"
      , cex.lab=1
      , cex.axis=1
+     , grid=grid()
 )
-grid()
 #
 height <- 24
 radius <- 0.8 
@@ -136,12 +139,12 @@ lines(3.5 + x0, 168 - y0, col=1)
 arrows(4.5, 155, 7, 135, angle=23, code=2, length=0.1)
 par(op0)
 #1
-op1 <- par( fig=c(.51 ,.94 ,.16 ,.60) , new=TRUE, mex=0.3, mar=c(7,6,1,1))
-unique(area00)
+op1 <- par( fig=c(.45, .94, .14, .60) , new=TRUE, mex=0.3, mar=c(7,6,1,1))
+
 rich01 <- sp.rich00[area00>=3 & area00<=4]
 hist(rich01, breaks = 40, xlab = '',  # '物种数 Number of species', 
      ylab = '频数 Frequency' , main = '',
-     cex.lab = 0.73,
+     cex.lab = 0.85,
      cex.axis = 0.7
 ) 
 par(op1) 
@@ -168,26 +171,30 @@ n01 <- names(t01)
 ################################# 
 
 ##################################
-area00 <- resu.all$area 
+area00 <- resu.all$area /10000
 sp.abun00 <- resu.all$sp.abun
  
 ############
 tiff('AreaSpeciesIndividual.tiff',
-     width = 3000, height = 2800,res=600,compression = "lzw")
+     family="Times",
+     pointsize=8,
+     width=80, height=80, units="mm",
+     res=600, compression="lzw")
 op0 <- par(mex=0.45,mar=c(5.1,5.0,2.3,1))
 plot(area00, sp.abun00
      , pch='*'
      , cex=0.8
      , col=gray(1/80
-        # , alpha=0.15
+    # , alpha=0.15
                 )
      , xlab=expression('面积 Area(' * hm^2 * ')')
      , ylab="个体数 Number of individuals"
      , cex.lab=1
      , cex.axis=1
+     , grid=grid()
 )
-abline(lm(sp.abun00 ~ area00), col=gray(5/8), lwd=2)
-grid()
+abline(lm(sp.abun00 ~ area00), col=gray(5/8), lwd=1.5)
+
 #
 height <- 3800
 radius <- 0.58 
@@ -198,11 +205,11 @@ lines(3.55 + x0, 15800 - y0, col=1)
 arrows( 3.65,21000, 4.6,35000,angle=30,code=2,length=0.10)
 par(op0)
 #
-op1 <- par( fig=c(.13 , .57, .56 , .95) , new=TRUE, mex=0.3, mar=c(5,6,1,1))
+op1 <- par( fig=c(.11 , .59, .56 , .95) , new=TRUE, mex=0.3, mar=c(5,6,1,1))
 sp.abun01 <- sp.abun00[area00>=3 & area00<=4]
 hist(sp.abun01, breaks = 40, xlab = '',  # "个体数 Number of individuals", 
      ylab = '频数 Frequency' , main = '',
-     cex.lab = 0.73,
+     cex.lab = 0.85,
      cex.axis = 0.7
 ) 
 par(op1)  
@@ -211,35 +218,82 @@ dev.off()
 
 ##################################################
 # get the rare ratios with different plot areas
-#
-
-
-
-SampleRanSqu0 <- function(data0=data0, Ar.00=c(1,2,5,8,10,12,15),
+# 
+Sample_RareRatios00 <- function(data0=data0, area.length =6,
                           n.rep=10, plotdim=c(500, 300)){
-
-  side.x <- sqrt(Ar.00*5/3)
-  sid0.x <- rep(side.x, times=n.rep)
-  sid0.y <- rep(side.x/5*3, times=n.rep)
   
-  start.x <- sapply(sid0.x, function(i)runif(n=1, min=0, max=plotdim[1]-i))  
-  start.y <- sapply(sid0.y, function(i)runif(n=1, min=0, max=plotdim[2]-i)) 
+  Areas.00  <- seq(4e4, 14e4, length.out=area.length)
+  areas.00_rep <- rep(Areas.00, times=n.rep)
+  area.xs_rep <- sqrt(areas.00_rep * 5 / 3) 
+  area.ys_rep <- area.xs_rep * 3 / 5
   
-  logi0.xy <- lapply(1 : length(start.x), function(i){ 
-    data0$x >= start.x[i] & data0$x <= start.x[i]+sid0.x[i] &
-      data0$y >= start.y[i] & data0$y <= start.y[i]+sid0.y[i]
+  start.xs <- sapply(area.xs_rep, function(i)runif(n=1, min=0, max=plotdim[1]-i))  
+  start.ys <- sapply(area.ys_rep, function(i)runif(n=1, min=0, max=plotdim[2]-i)) 
+  
+  logi0.xy <- lapply(1 : length(start.xs), function(i){ 
+    data0$x >= start.xs[i] & data0$x <= start.xs[i]+area.xs_rep[i] &
+      data0$y >= start.ys[i] & data0$y <= start.ys[i]+area.ys_rep[i]
   }
   )  
   
-  sp.rich <- sapply(1:length(start.x), function(i){
+  sp.rich <- sapply(1:length(start.xs), function(i){
     length(unique(data0$sp[logi0.xy[[i]]]))   }
   )
   
-  sp.abun <- sapply(1:length(start.x), function(i){
-    length(data0$sp[logi0.xy[[i]]])           }
-  )
   
-  return(list(area=(sid0.x/100)*(sid0.y/100), x=start.x, y=start.y, sp.rich=sp.rich,
-              sp.abun=sp.abun) )
-}
+  rare.length <- sapply(1:length(start.xs), function(i){
+    spe.tab00s <- table(data0$sp[logi0.xy[[i]]]) 
+    sum(spe.tab00s <= areas.00_rep[[i]]/1e4 & spe.tab00s >0)
+                                                        }
+                       )
+  return(list(area=areas.00_rep, x=start.xs, y=start.ys, sp.rich=sp.rich,
+              rare.ratio=rare.length / sp.rich))
+                                                      }
+################################################
 
+system.time(
+  rare.ratio.results <- Sample_RareRatios00(data0=data0, 
+                  area.length=6, n.rep=200, plotdim=c(500, 300))
+)
+
+###############################################
+area00 <-  rare.ratio.results$area / 1e4
+rare00 <-  rare.ratio.results$rare.ratio 
+
+#     tiff('AreaRare00.tiff',
+#             width = 3000, height = 2800,res=600,compression = "lzw")
+
+op0 <- par(mex=0.45,mar=c(5.1,5.0,2.3,1))
+plot(area00 
+     , rare00
+     , pch='*'
+     , cex=2
+     , col=gray(1/80
+                , alpha=0.1
+     )
+     , xlab=expression('面积 Area(' * hm^2 * ')')
+     , ylab="物种数 Number of species"
+     , cex.lab=1
+     , cex.axis=1
+)
+grid()
+###########################################
+##
+
+  tiff('AreaRare00.tiff',
+          width = 3000, height = 2800,res=600,compression = "lzw")
+
+rb <- boxplot(rare00 ~ area00,col='lightgray')
+title("Rare species ratios with different areas")
+rb 
+#
+mn.t <- tapply(rare00, area00, mean)
+sd.t <- tapply(rare00, area00, sd)
+xi <- 0.2 + seq(rb$n)
+points(xi, mn.t, col = "orange", pch = 18)
+arrows(xi, mn.t - sd.t, xi, mn.t + sd.t,
+       code = 3, col = "pink", angle = 75, length = .1)
+
+   dev.off()
+
+############################################ 

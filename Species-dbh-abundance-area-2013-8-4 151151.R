@@ -8,6 +8,8 @@ head(dat)
 dat01 <- subset(dat, sp!='00枯立木')
 dat00 <- subset(dat01,is.na(bra))
 
+##
+head(dat00)
 levels(dat00$sp) 
 
 dim(dat00)
@@ -27,26 +29,42 @@ DoPoint <- function(xm01, den00, TEXT=1){
   segments(-6, den00[xm01], xm01, den00[xm01], lty=2, col=1)
   x0 <- ifelse(TEXT==1, 25, 35)
   y0 <- ifelse(TEXT==1, 0.4, -0.1) 
-  text(xm01+x0,den00[xm01]+y0, Tex0, cex=0.7  )    
+  text(xm01+x0,den00[xm01]+y0, Tex0, cex=0.9  )    
                                         }
 ####
 
 # species-abundance
 
- tab00 <- sort(table(dat00$sp), decreasing = T)
+tab00 <- sort(table(dat00$sp), decreasing = T)
+sum(tab00)
+ke.hys <- read.csv("distru.ke.shu.hys2013-2-19 170601.csv")
+head(ke.hys)
+
+m.order <- match(names(tab00), ke.hys$种名)
+ke00 <- ke.hys[m.order, ]
+tab01 <- cbind(tab00,ke00)
+head(tab01)
+sum(tab01$tab00)
+dir()
+write.csv(tab01,'species abundance01.csv')
+
  t.1 <- length(which(tab00>15))+1
  t.10 <- length(which(tab00>150))+1
 ############
 #x11(3,2.8)
-tiff('lnAbundanceSpecies.tiff',
-     width = 2100, height = 1900,res=600,compression = "lzw")
-par(mex=0.45,mar=c(5.1, 6.3,1,1))
+windowsFonts(Times = windowsFont("Times New Roman"))
+tiff('lnAbundanceSpecies00.tiff',
+     family="Times", pointsize=8,
+     width = 80, height = 70, units = "mm",
+     res=600,compression = "lzw")
+par(mex=0.45,mar=c(5.1, 5.1,1,1)) 
 plot(log(tab00)
      , type='p'
-     , cex=0.5
-     , cex.lab=0.7
-     , cex.axis=0.6
-     ,ylab="多度(取对数) \n ln(abundance)"
+     , cex=0.7
+     , lwd=0.5
+     , cex.lab=1
+     , cex.axis=0.9
+     ,ylab="多度(取对数) Ln(abundance)"
      ,xlab="物种多度序列 Species rank in abundance"
 )
 DoPoint(xm01=t.1, den00=log(tab00), TEXT=1)
@@ -69,13 +87,16 @@ t9 <- length(which(tab01<90))+1
 #################
 #x11(3,2.8)
 tiff('CumulativeAbundanceSpecies.tiff',
-     width = 2100, height = 1900,res=600,compression = "lzw")
-par(mex=0.45,mar=c(5.1, 6.3, 1, 1))
+     family="Times", pointsize=8,
+     width = 80, height = 70, units = "mm",
+     res=600,compression = "lzw")
+par(mex=0.45,mar=c(5.1, 7.2, 1, 1))
 plot(tab01
      , type='p'
-     , cex=0.5
-     , cex.lab=0.7
-     , cex.axis=0.6
+     , cex=0.7
+     , lwd=0.5
+     , cex.lab=1
+     , cex.axis=0.9
      ,ylab="累计百分比多度 \n Cumulative percentage of abundance(%)"
      ,xlab="物种多度序列 Species rank in abundance"
      )
@@ -288,9 +309,12 @@ da0$dbh[da0$dbh<1] <- 1
 summary(da0$dbh)
 head(da0)  
 #
+windowsFonts(Times = windowsFont("Times New Roman"))
 tiff('MapDbhPlot10-20.tiff',
-     width = 3000, height = 2100,res=600,compression = "lzw")
-op0 <- par(mex=0.5,mar=c(3,3,1,1))
+     family="Times",pointsize=8,
+     width = 80, height = 59, units = "mm",
+     res=600,compression = "lzw")
+op0 <- par(mex=0.45,mar=c(3,3,0.5,0.5))
 
 with(subset(da0,dbh>=10 & dbh<20), 
      plot(x, y, 
@@ -300,8 +324,8 @@ with(subset(da0,dbh>=10 & dbh<20),
           col=grey(3/20
                    , alpha=0.7
                    ),
-          lwd=1,yaxt='n',
-          pch=3, cex=0.8)
+          lwd=0.65,yaxt='n',
+          pch=3, cex=0.65)
     )  
 axis(2, cex.axis=1, at = seq(0, 300, length.out = 4)
      #, labels = seq(0, 300, by = 50)
@@ -310,66 +334,71 @@ dev.off()
 #
 #
 tiff('MapDbhPlot20-30-inf.tiff',
-     width = 3000, height = 2100,res=600,compression = "lzw")
-   op0 <- par(mex=0.5,mar=c(3,3,1,1))
+     family="Times",pointsize=8,
+     width = 80, height = 59, units = "mm",
+     res=600,compression = "lzw")
+   op0 <- par(mex=0.45,mar=c(3,3,0.5,0.5))
 with(subset(da0,dbh>=20 & dbh<30), 
      plot(x, y,
            ylim=c(0,300), xlim=c(0,500),
            ylab='',xlab='',
            cex.axis=1, yaxt='n',
            col=grey(0/10, alpha=0.6),
-           lwd=1, pch=1, cex=0.7
+           lwd=0.9, pch=1, cex=0.7
           )
      ) 
 axis(2, cex.axis=1, at = seq(0, 300, length.out = 4) )
 with(subset(da0,dbh>=30), 
-     points(x,y,ylim=c(0,300),xlim=c(0,500),pch=2,lwd=1,cex=1,col=grey(0/10, alpha=0.8))
+     points(x,y,ylim=c(0,300),xlim=c(0,500),pch=2,lwd=0.9,cex=1,col=grey(0/10, alpha=0.8))
      ) 
 dev.off()
 # 
 ########################## 
 #####################################################################
 #
+windowsFonts(Times = windowsFont("Times New Roman"))
 tiff('DbhClassAbun.tiff',
-     width = 3000, height = 2600,res=600,compression = "lzw")
+     family="Times",pointsize=8,
+     width = 80, height = 70, units = "mm",
+     res=600,compression = "lzw")
   par(mex=0.45,mar=c(5.1, 5.0, 2.3, 1))
   yy <- table(cut(da0$dbh,0:max(da0$dbh)+1, right=F))
   plot(yy
      , type='h'
-     , lwd=1
+     , lwd=0.7
      , cex.lab=1
      , axes=F
-     , xlab='径级 DBH Class (cm)', ylab='多度 Abundance')
-  axis(1, seq(0,max(da0$dbh), by =round(max(da0$dbh)/10)), cex.axis=1)
-  axis(2, seq(0,25000, by =2500), cex.axis=1)
-  text(50,16000,labels = '所有个体 \n All individuals',cex=0.9)
+     , xlab='径级 DBH class (cm)', ylab='多度 Abundance')
+  axis(1, seq(0,max(da0$dbh), by =round(max(da0$dbh)/10)), cex.axis=0.9)
+  axis(2, seq(0,25000, by =2500), cex.axis=0.9)
   box()
   grid() 
+  text(50,16000,labels = '所有个体 \n All individuals',cex=1)
 dev.off()
 ###################################
 
 tiff('CumulativeDbhClassAbun.tiff',
-     width = 3000, height = 2600,res=600,compression = "lzw")
+     family="Times",pointsize=8,
+     width = 80, height = 70, units = "mm",
+     res=600,compression = "lzw")
 par(mex=0.45,mar=c(5.1, 7.5, 2.3, 1))
-
 yy0 <- cumsum(yy)*100/sum(yy)
-
-
-plot(yy0
-     , type='o'
-     , cex=0.5
-     , lty=3
-     , lwd=1
-     , cex.lab=1
-     , axes=F
+plot(yy0, type='n', axes=F,  
      , xlab='径级 DBH Class (cm)'
      , ylab="累计百分比多度 \n Cumulative percentage of abundance(%)"
-    )
-axis(1, seq(0,max(da0$dbh), by =round(max(da0$dbh)/10)), cex.axis=1)
-axis(2, seq(0,100, by =10), cex.axis=1)
-text(50,78,labels = '所有个体 \n All individuals',cex=0.9)
+)
+grid()
+axis(1, seq(0,max(da0$dbh), by =round(max(da0$dbh)/10)), cex.axis=0.9)
+axis(2, seq(0,100, by =10), cex.axis=0.9)
 box()
-grid() 
+points(yy0
+     , type='o'
+     , cex=0.7
+     , lty=3
+     , lwd=0.7
+     , cex.lab=1
+  )
+text(50,78,labels = '所有个体 \n All individuals',cex=1)
 dev.off()
 #
 ###########################################
@@ -389,9 +418,10 @@ dir()
 iv00 <- read.csv('hysIV2013.csv')
 head(iv00)
 nam00 <- iv00$Species
-nam.1 <- c('黄梨木', '细叶谷木','山榄叶柿',
-           '蚬木',  '闭花木', '肥牛树', 
-           '日本五月茶', '劲直刺桐', '对叶榕')
+nam.1 <- c('黄梨木', '细叶谷木',
+           '山榄叶柿', '蚬木',  '闭花木', '肥牛树', 
+          '日本五月茶', '劲直刺桐', '对叶榕'
+           )
 xy00 <- data.frame(x=c(18, 42, 12, 
                        50, 30, 35,
                        24, 45,16),
@@ -402,24 +432,104 @@ xy00 <- data.frame(x=c(18, 42, 12,
 ###
 #
   for(i in 1:length(nam.1)){
+    i=3
       da0=data[data$sp==nam.1[i], ]
       yy <- table(cut(da0$dbh,1:max(da0$dbh)+1))
 tiff(paste('DbhSpeciesPlot',nam.1[i],'.tiff'),
-     width = 3000, height = 2600,res=600,compression = "lzw")
-par(mex=0.3,mar=c(4, 5, 1, 1))
-   plot(yy, lwd=1, axes=F, xlab='', ylab='')
-      axis(1, seq(0,max(da0$dbh), by =round(max(da0$dbh)/10)), cex.axis=1.2)
-      axis(2, seq(0,max(yy), by =round(max(yy)/10)), cex.axis=1.2)
+     family="Times",pointsize=8,
+     width = 56, height = 51, units = "mm",
+     res=600,compression = "lzw"
+     )
+par(mex=0.3,mar=c(4, 4, 1, 1))
+   plot(yy, lwd=0.7, axes=F, xlab='', ylab='', xlim=c(0,25))
+      axis(1, seq(0,max(da0$dbh), by =round(max(da0$dbh)/10)), cex.axis=1)
+      axis(2, seq(0,max(yy), by =round(max(yy)/10)), cex.axis=1)
       bb <- substitute(expression(X, italic(Y))
                  , list(X = paste(nam.1[i], '\n'), Y = as.character(iv00$sp.ld[i])) 
                  ) 
       mode(bb) <- 'expression'
-      text(xy00[i,],labels = bb,cex=1.2)
+      text(xy00[i,],labels = bb,cex=0.9)
  dev.off()
                          }
 
 #######################################################################
   
+
+
+##############################################################
+setwd("F:/DataW/lg-data/composition")
+data <- read.csv("lgdat2013.csv")
+da0 <- subset(data, !is.na(bra))  # get brach data
+da0$dbh[da0$dbh<1] <- 1
+summary(da0$dbh); head(da0) 
+#
+windowsFonts(Times = windowsFont("Times New Roman"))
+tiff('BrachMapPlot-0-5.tiff',family="Times",
+     pointsize=8,
+     width = 80, height = 59, units = "mm",
+     res=600,compression = "lzw")
+op0 <- par(mex=0.5,mar=c(3,3,1,1))
+with(subset(da0,dbh>0 & dbh<5), 
+     plot(x, y
+          , ylim=c(0,300), xlim=c(0,500)
+          ,ylab='',xlab=''
+          , cex.axis=1
+          ,col=grey(10/80
+                      ,alpha=0.5
+          )
+          , pch='*', cex=0.65, yaxt='n'
+     )
+)
+axis(side=2,at=seq(0,300,100), cex.axis=1)
+dev.off()
+#
+
+#
+tiff('BrachMapPlot-5-20-inf.tiff',family="Times",
+     pointsize=8,
+     width = 80, height = 59, units = "mm",
+     res=600,compression = "lzw")
+op0 <- par(mex=0.5,mar=c(3,3,1,1))
+with(subset(da0,dbh>=5 & dbh<20), 
+     plot(x, y
+          , ylim=c(0,300), xlim=c(0,500)
+          ,ylab='', xlab=''
+          , cex.axis=1, yaxt='n',
+          ,col=grey(2/10, alpha=0.5)
+          ,lwd=0.7, pch=3, cex=0.6
+     )
+) 
+axis(side=2,at=seq(0,300,100), cex.axis=1)
+with(subset(da0,dbh>=20), 
+     points(x,y,ylim=c(0,300), xlim=c(0,500),
+            pch=1,lwd=1,cex=1,col=1)
+) 
+par(op0)
+dev.off()
+##################################################################
+#####################################################################
+#
+yy <- table(cut(da0$dbh,0:max(da0$dbh)+1, right=F))
+windowsFonts(Times = windowsFont("Times New Roman"))
+tiff('BranchDbhClassAbun.tiff',
+     family="Times",
+     pointsize=8,
+     width = 80, height = 70, units = "mm",
+     res=600,compression = "lzw")
+par(mex=0.45,mar=c(5.1,5.0,1,1))
+plot(yy
+     , type='h'
+     , lwd=0.7
+     , cex.lab=1
+     , axes=F
+     , xlab='径级 DBH class (cm)', ylab='多度 Abundance')
+axis(1, seq(0,max(da0$dbh), by =round(max(da0$dbh)/10)), cex.axis=0.9)
+axis(2, seq(0,25000, by =2500), cex.axis=0.9)
+text(40.5,10000,labels = '所有分枝和萌枝 \n All ramifications and sprouts',cex=0.9)
+box()
+grid() 
+dev.off()
+###################################
 
 
 
